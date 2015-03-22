@@ -1,0 +1,9 @@
+name: iSpleef
+main: co.obam.ismooch.ispleef.iSpleef
+version: 1.5
+author: iSmooch
+
+commands:
+  spleef:
+    description: Teleport to spleef or teleport back to Hub.
+    usage: /<command>

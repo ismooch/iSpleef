@@ -1,0 +1,18 @@
+Locations:
+  center:
+    x: 0
+    y: 0
+    z: 0
+  spawn:
+    x: 0
+    y: 0
+    z: 0
+  staff:
+    x: 0
+    y: 0
+    z: 0
+  threshold:
+    x: 0
+    y: 0
+    z: 0
+
