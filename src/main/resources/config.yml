@@ -15,4 +15,18 @@ Locations:
     x: 0
     y: 0
     z: 0
+Modes:
+  -stone
+  -netherack
+stone:
+  block: STONE
+  tool: DIAMOND_PICKAXE
+  enchant: DURABILITY
+  power: 10
+netherack:
+  block: NETHERRACK
+  tool: DIAMOND_PICKAXE
+  enchant: DURABILITY
+  power: 10
+
 
