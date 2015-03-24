@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -34,7 +35,7 @@ public class iSpleef extends JavaPlugin implements Listener {
     public static List<Location> spleefDoor;
     public static List<String> spleefModes;
     public static List<String> spleefLocs;
-    boolean spleefOn = false;
+    public static boolean spleefOn = false;
 
     @EventHandler
     public static void onPlayerDamage(EntityDamageEvent e) {
@@ -47,18 +48,37 @@ public class iSpleef extends JavaPlugin implements Listener {
 
     }
 
+
+    @EventHandler
+    public static void onBlockPlace(BlockPlaceEvent e) {
+
+        if (!e.getPlayer().hasPermission("obam.smod")) {
+
+            e.setCancelled(true);
+
+        }
+
+    }
+
     @EventHandler
     public static void onBlockBreak(BlockDamageEvent e) {
 
-        if (e.getBlock().getType().equals(currentBlock)) {
+        if (spleefOn) {
 
-            if (e.getItemInHand().equals(currentTool)) {
+            if (e.getBlock().getType().equals(currentBlock)) {
+
+                if (e.getItemInHand().equals(currentTool)) {
 
 
-                e.getBlock().setType(Material.AIR);
-                e.setCancelled(true);
+                    e.getBlock().setType(Material.AIR);
+                    e.setCancelled(true);
+
+                }
 
             }
+        } else if (!e.getPlayer().hasPermission("obam.smod")) {
+
+            e.setCancelled(true);
 
         }
 
@@ -90,7 +110,7 @@ public class iSpleef extends JavaPlugin implements Listener {
             for (int z = -radius; z <= radius; z++) {
 
                 Location temp = new Location(w, xCoord + x, y, zCoord + z);
-                if (temp.getBlock().equals(Material.DIAMOND_BLOCK)) {
+                if (temp.getBlock().getType().equals(Material.DIAMOND_BLOCK)) {
 
                     tempList.add(new Location(w, xCoord + x, y + 1, zCoord + z));
                     tempList.add(new Location(w, xCoord + x, y + 2, zCoord + z));
@@ -102,7 +122,9 @@ public class iSpleef extends JavaPlugin implements Listener {
         return tempList;
     }
 
+
     @Override
+    //@SuppressWarnings("unchecked")
     public void onEnable() {
 
         getServer().getPluginManager().registerEvents(this, this);
@@ -115,10 +137,18 @@ public class iSpleef extends JavaPlugin implements Listener {
                 new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.staff.x"), this.getConfig().getDouble("Locations.staff.y"), this.getConfig().getDouble("Locations.staff.z"));
         spleefThreshold =
                 new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.threshold.x"), this.getConfig().getDouble("Locations.threshold.y"), this.getConfig().getDouble("Locations.threshold.z"));
-        hubSpawn =
-                new Location(Bukkit.getWorld("Hub"), Bukkit.getWorld("Hub").getSpawnLocation().getX(), Bukkit.getWorld("Hub").getSpawnLocation().getY(), Bukkit.getWorld("Hub").getSpawnLocation().getZ());
+        // hubSpawn =
+        //  new Location(Bukkit.getWorld("Hub"), Bukkit.getWorld("Hub").getSpawnLocation().getX(), Bukkit.getWorld("Hub").getSpawnLocation().getY(), Bukkit.getWorld("Hub").getSpawnLocation().getZ());
+
+
         spleefModes = this.getConfig().getStringList("Modes");
         spleefLocs = this.getConfig().getStringList("Locvalues");
+
+        for (String test : spleefModes) {
+
+            System.out.println(test);
+
+        }
 
 
         spleefFloor = getFloorBlocks(spleefCenter, (int) spleefCenter.getY(), 35);
@@ -182,7 +212,7 @@ public class iSpleef extends JavaPlugin implements Listener {
 
             } else {
                 Player player = (Player) sender;
-                if (player.hasPermission("obam.smod")) {
+                if (!player.hasPermission("obam.smod")) {
 
                     player.sendMessage(ChatColor.RED + "You do not have permission to do this!");
                     return true;
@@ -294,14 +324,16 @@ public class iSpleef extends JavaPlugin implements Listener {
 
                         for (String location : spleefLocs) {
 
-                            player.sendRawMessage(ChatColor.GREEN + location);
+                            player.sendRawMessage(ChatColor.GREEN + String.valueOf(location));
 
                         }
 
                         player.sendRawMessage(
                                 ChatColor.GREEN + "Use " +
-                                        ChatColor.YELLOW + "/spleef loc <locaiton name>" + ChatColor.GREEN +
+                                        ChatColor.YELLOW + "/spleef loc <location name>" + ChatColor.GREEN +
                                         " to set the location for that value.");
+
+                        return true;
 
 
                     } else if (args.length < 3 && args[0].equalsIgnoreCase("loc")) {
@@ -315,9 +347,11 @@ public class iSpleef extends JavaPlugin implements Listener {
                             Double x = loc.getX();
                             Double z = loc.getZ();
 
+
                             this.getConfig().set("Locations." + comp + ".x", x);
                             this.getConfig().set("Locations." + comp + ".y", y);
                             this.getConfig().set("Locations." + comp + ".z", z);
+                            this.saveConfig();
 
                             player.sendRawMessage(
                                     ChatColor.YELLOW + comp + ChatColor.GREEN + " has successfully been set to " +
@@ -338,6 +372,7 @@ public class iSpleef extends JavaPlugin implements Listener {
 
                     } else if (args.length < 2 && args[0].equalsIgnoreCase("reload")) {
 
+                        this.reloadConfig();
 
                         spleefSpawn =
                                 new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.spawn.x"), this.getConfig().getDouble("Locations.spawn.y"), this.getConfig().getDouble("Locations.spawn.z"));
@@ -347,8 +382,13 @@ public class iSpleef extends JavaPlugin implements Listener {
                                 new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.staff.x"), this.getConfig().getDouble("Locations.staff.y"), this.getConfig().getDouble("Locations.staff.z"));
                         spleefThreshold =
                                 new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.threshold.x"), this.getConfig().getDouble("Locations.threshold.y"), this.getConfig().getDouble("Locations.threshold.z"));
-                        hubSpawn =
-                                new Location(Bukkit.getWorld("Hub"), Bukkit.getWorld("Hub").getSpawnLocation().getX(), Bukkit.getWorld("Hub").getSpawnLocation().getY(), Bukkit.getWorld("Hub").getSpawnLocation().getZ());
+                        //hubSpawn =
+                        //new Location(Bukkit.getWorld("Hub"), Bukkit.getWorld("Hub").getSpawnLocation().getX(), Bukkit.getWorld("Hub").getSpawnLocation().getY(), Bukkit.getWorld("Hub").getSpawnLocation().getZ());
+                        spleefModes.clear();
+                        spleefLocs.clear();
+                        spleefFloor.clear();
+                        spleefDoor.clear();
+
                         spleefModes = this.getConfig().getStringList("Modes");
                         spleefLocs = this.getConfig().getStringList("Locvalues");
 
@@ -356,6 +396,51 @@ public class iSpleef extends JavaPlugin implements Listener {
                         spleefFloor = getFloorBlocks(spleefCenter, (int) spleefCenter.getY(), 35);
                         spleefDoor = getDoorBlocks(spleefCenter, (int) spleefCenter.getY(), 50);
                         player.sendRawMessage(ChatColor.GREEN + "Spleef has been reloaded!");
+                        return true;
+
+                    } else if (args.length < 2 && args[0].equalsIgnoreCase("on")) {
+
+                        if (!spleefOn) {
+
+                            spleefOn = true;
+                            player.sendRawMessage(ChatColor.GREEN + "You have activated a game of Spleef!");
+
+                            for (Player person : Bukkit.getWorld("spleef").getPlayers()) {
+
+                                person.sendRawMessage(
+                                        ChatColor.GREEN + "A game of " + ChatColor.YELLOW + "Spleef" + ChatColor.GREEN +
+                                                " has begun!");
+
+                            }
+                            return true;
+
+                        } else {
+
+                            player.sendRawMessage(ChatColor.RED + "A spleef game is already in progress!");
+                            return true;
+
+                        }
+
+                    } else if (args.length < 2 && args[0].equalsIgnoreCase("off")) {
+
+                        if (spleefOn) {
+
+                            spleefOn = false;
+                            player.sendRawMessage(ChatColor.GREEN + "You have ended a game of Spleef!");
+
+                            for (Player person : Bukkit.getWorld("spleef").getPlayers()) {
+
+                                person.sendRawMessage(ChatColor.GREEN + "The Game of " + ChatColor.YELLOW + "Spleef" +
+                                        ChatColor.GREEN + " has ended!");
+
+                            }
+                            return true;
+                        } else {
+
+                            player.sendRawMessage(ChatColor.RED + "A spleef game is not currently active!");
+                            return true;
+
+                        }
 
                     }
 

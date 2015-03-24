@@ -16,13 +16,13 @@ Locations:
     y: 0
     z: 0
 Locvalues:
-  -center
-  -spawn
-  -staff
-  -threshold
+  - center
+  - spawn
+  - staff
+  - threshold
 Modes:
-  -stone
-  -netherack
+  - stone
+  - netherack
 stone:
   block: STONE
   tool: DIAMOND_PICKAXE
