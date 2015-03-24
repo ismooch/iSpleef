@@ -15,6 +15,11 @@ Locations:
     x: 0
     y: 0
     z: 0
+Locvalues:
+  -center
+  -spawn
+  -staff
+  -threshold
 Modes:
   -stone
   -netherack

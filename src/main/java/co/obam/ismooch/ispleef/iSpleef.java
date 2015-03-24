@@ -33,6 +33,7 @@ public class iSpleef extends JavaPlugin implements Listener {
     public static List<Location> spleefFloor;
     public static List<Location> spleefDoor;
     public static List<String> spleefModes;
+    public static List<String> spleefLocs;
     boolean spleefOn = false;
 
     @EventHandler
@@ -101,6 +102,7 @@ public class iSpleef extends JavaPlugin implements Listener {
         return tempList;
     }
 
+    @Override
     public void onEnable() {
 
         getServer().getPluginManager().registerEvents(this, this);
@@ -116,12 +118,13 @@ public class iSpleef extends JavaPlugin implements Listener {
         hubSpawn =
                 new Location(Bukkit.getWorld("Hub"), Bukkit.getWorld("Hub").getSpawnLocation().getX(), Bukkit.getWorld("Hub").getSpawnLocation().getY(), Bukkit.getWorld("Hub").getSpawnLocation().getZ());
         spleefModes = this.getConfig().getStringList("Modes");
+        spleefLocs = this.getConfig().getStringList("Locvalues");
 
 
         spleefFloor = getFloorBlocks(spleefCenter, (int) spleefCenter.getY(), 35);
         spleefDoor = getDoorBlocks(spleefCenter, (int) spleefCenter.getY(), 50);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             @Override
             public void run() {
 
@@ -146,7 +149,7 @@ public class iSpleef extends JavaPlugin implements Listener {
                 }
 
             }
-        }, 20L);
+        }, 0L, 20L);
 
     }
 
@@ -284,6 +287,75 @@ public class iSpleef extends JavaPlugin implements Listener {
 
                         return true;
 
+
+                    } else if (args.length < 2 && args[0].equalsIgnoreCase("loc")) {
+
+                        player.sendRawMessage(ChatColor.GREEN + "The list of accepting locations:");
+
+                        for (String location : spleefLocs) {
+
+                            player.sendRawMessage(ChatColor.GREEN + location);
+
+                        }
+
+                        player.sendRawMessage(
+                                ChatColor.GREEN + "Use " +
+                                        ChatColor.YELLOW + "/spleef loc <locaiton name>" + ChatColor.GREEN +
+                                        " to set the location for that value.");
+
+
+                    } else if (args.length < 3 && args[0].equalsIgnoreCase("loc")) {
+
+                        String comp = args[1];
+
+                        if (spleefLocs.contains(comp)) {
+
+                            Location loc = player.getLocation();
+                            Double y = loc.getY();
+                            Double x = loc.getX();
+                            Double z = loc.getZ();
+
+                            this.getConfig().set("Locations." + comp + ".x", x);
+                            this.getConfig().set("Locations." + comp + ".y", y);
+                            this.getConfig().set("Locations." + comp + ".z", z);
+
+                            player.sendRawMessage(
+                                    ChatColor.YELLOW + comp + ChatColor.GREEN + " has successfully been set to " +
+                                            ChatColor.YELLOW + String.valueOf(x) + ", " + String.valueOf(y) + ", " +
+                                            String.valueOf(z) + ChatColor.GREEN + "!");
+                            player.sendRawMessage(
+                                    ChatColor.GREEN + "Please use " + ChatColor.YELLOW + "/spleef reload" +
+                                            ChatColor.GREEN + " to update the values");
+                            return true;
+
+                        } else {
+
+                            player.sendRawMessage(
+                                    ChatColor.YELLOW + comp + ChatColor.RED + " is not a valid listed location!");
+                            return true;
+
+                        }
+
+                    } else if (args.length < 2 && args[0].equalsIgnoreCase("reload")) {
+
+
+                        spleefSpawn =
+                                new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.spawn.x"), this.getConfig().getDouble("Locations.spawn.y"), this.getConfig().getDouble("Locations.spawn.z"));
+                        spleefCenter =
+                                new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.center.x"), this.getConfig().getDouble("Locations.center.y"), this.getConfig().getDouble("Locations.center.z"));
+                        spleefStaff =
+                                new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.staff.x"), this.getConfig().getDouble("Locations.staff.y"), this.getConfig().getDouble("Locations.staff.z"));
+                        spleefThreshold =
+                                new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.threshold.x"), this.getConfig().getDouble("Locations.threshold.y"), this.getConfig().getDouble("Locations.threshold.z"));
+                        hubSpawn =
+                                new Location(Bukkit.getWorld("Hub"), Bukkit.getWorld("Hub").getSpawnLocation().getX(), Bukkit.getWorld("Hub").getSpawnLocation().getY(), Bukkit.getWorld("Hub").getSpawnLocation().getZ());
+                        spleefModes = this.getConfig().getStringList("Modes");
+                        spleefLocs = this.getConfig().getStringList("Locvalues");
+
+
+                        spleefFloor = getFloorBlocks(spleefCenter, (int) spleefCenter.getY(), 35);
+                        spleefDoor = getDoorBlocks(spleefCenter, (int) spleefCenter.getY(), 50);
+                        player.sendRawMessage(ChatColor.GREEN + "Spleef has been reloaded!");
 
                     }
 
