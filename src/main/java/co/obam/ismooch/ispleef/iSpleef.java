@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -69,14 +70,33 @@ public class iSpleef extends JavaPlugin implements Listener {
 
                 if (e.getItemInHand().equals(currentTool)) {
 
-
+                    e.getItemInHand().setDurability(e.getItemInHand().getType().getMaxDurability());
                     e.getBlock().setType(Material.AIR);
                     e.setCancelled(true);
 
+                } else {
+
+                    e.setCancelled(true);
                 }
 
+            } else {
+
+                e.setCancelled(true);
+
             }
+
         } else if (!e.getPlayer().hasPermission("obam.smod")) {
+
+            e.setCancelled(true);
+
+        }
+
+    }
+
+    @EventHandler
+    public static void onItemDrop(PlayerDropItemEvent e) {
+
+        if (e.getPlayer().getWorld().getName().equalsIgnoreCase("spleef")) {
 
             e.setCancelled(true);
 
@@ -137,8 +157,8 @@ public class iSpleef extends JavaPlugin implements Listener {
                 new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.staff.x"), this.getConfig().getDouble("Locations.staff.y"), this.getConfig().getDouble("Locations.staff.z"));
         spleefThreshold =
                 new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.threshold.x"), this.getConfig().getDouble("Locations.threshold.y"), this.getConfig().getDouble("Locations.threshold.z"));
-        // hubSpawn =
-        //  new Location(Bukkit.getWorld("Hub"), Bukkit.getWorld("Hub").getSpawnLocation().getX(), Bukkit.getWorld("Hub").getSpawnLocation().getY(), Bukkit.getWorld("Hub").getSpawnLocation().getZ());
+        hubSpawn =
+                Bukkit.getWorld("Death-hub").getSpawnLocation();
 
 
         spleefModes = this.getConfig().getStringList("Modes");
@@ -158,7 +178,11 @@ public class iSpleef extends JavaPlugin implements Listener {
             @Override
             public void run() {
 
+                for (Player player : Bukkit.getWorld("spleef").getPlayers()) {
 
+                    player.setFoodLevel(20);
+
+                }
                 if (spleefOn) {
                     for (Player player : Bukkit.getWorld("spleef").getPlayers()) {
 
@@ -196,6 +220,7 @@ public class iSpleef extends JavaPlugin implements Listener {
                 if (!worldName.equalsIgnoreCase("spleef")) {
 
                     player.teleport(spleefSpawn);
+                    player.getInventory().clear();
                     player.sendMessage(
                             ChatColor.GREEN + "You are going to " + ChatColor.YELLOW + "Spleef" + ChatColor.GREEN +
                                     "!");
@@ -382,8 +407,8 @@ public class iSpleef extends JavaPlugin implements Listener {
                                 new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.staff.x"), this.getConfig().getDouble("Locations.staff.y"), this.getConfig().getDouble("Locations.staff.z"));
                         spleefThreshold =
                                 new Location(Bukkit.getWorld("spleef"), this.getConfig().getDouble("Locations.threshold.x"), this.getConfig().getDouble("Locations.threshold.y"), this.getConfig().getDouble("Locations.threshold.z"));
-                        //hubSpawn =
-                        //new Location(Bukkit.getWorld("Hub"), Bukkit.getWorld("Hub").getSpawnLocation().getX(), Bukkit.getWorld("Hub").getSpawnLocation().getY(), Bukkit.getWorld("Hub").getSpawnLocation().getZ());
+                        hubSpawn =
+                                Bukkit.getWorld("Death-hub").getSpawnLocation();
                         spleefModes.clear();
                         spleefLocs.clear();
                         spleefFloor.clear();

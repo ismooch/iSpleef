@@ -28,7 +28,7 @@ stone:
   tool: DIAMOND_PICKAXE
   enchant: DURABILITY
   power: 10
-netherack:
+netherrack:
   block: NETHERRACK
   tool: DIAMOND_PICKAXE
   enchant: DURABILITY
