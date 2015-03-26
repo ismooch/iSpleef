@@ -7,8 +7,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
@@ -62,15 +61,48 @@ public class iSpleef extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public static void onBlockBreak(BlockDamageEvent e) {
+    public static void onBlockBreak(BlockBreakEvent e) {
+
+        if (e.getPlayer().getWorld().getName().equalsIgnoreCase("spleef") &&
+                !e.getPlayer().hasPermission("obam.smod")) {
+
+            e.setCancelled(true);
+
+
+        }
+    }
+
+    @EventHandler
+    public static void onBlockFade(BlockFadeEvent e) {
+
+        if (e.getBlock().getWorld().getName().equalsIgnoreCase("spleef")) {
+
+            e.setCancelled(true);
+
+        }
+
+    }
+
+    @EventHandler
+    public static void onLeafDecay(LeavesDecayEvent e) {
+
+        if (e.getBlock().getWorld().getName().equalsIgnoreCase("spleef")) {
+
+            e.setCancelled(true);
+
+        }
+
+    }
+
+    @EventHandler
+    public static void onBlockDamage(BlockDamageEvent e) {
 
         if (spleefOn) {
 
             if (e.getBlock().getType().equals(currentBlock)) {
 
-                if (e.getItemInHand().equals(currentTool)) {
+                if (e.getItemInHand().getType().equals(currentTool.getType())) {
 
-                    e.getItemInHand().setDurability(e.getItemInHand().getType().getMaxDurability());
                     e.getBlock().setType(Material.AIR);
                     e.setCancelled(true);
 
